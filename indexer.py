@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.4
 # -*- coding: utf-8 -*-
 """
     indexer
@@ -69,5 +70,5 @@ if __name__ == "__main__":
     else:
         indexer = Indexer(sys.argv[1], sys.argv[2])
         indexer.create_index()
-        #print(indexer.indexes)
         indexer.write_index_to_file()
+        print("Indexes were created successfully!")

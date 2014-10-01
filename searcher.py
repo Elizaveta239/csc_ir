@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.4
 # -*- coding: utf-8 -*-
 """
     searcher
@@ -45,7 +46,7 @@ class Searcher:
         answer_files = set()
         for word in words:
             if word in self.indexes:
-                set(self.indexes[word]).union(answer_files)
+                answer_files = set(self.indexes[word]).union(answer_files)
         return answer_files
 
 
@@ -53,7 +54,7 @@ class Searcher:
         answer_names = [self.files[file_id] for file_id in answer]
         if len(answer_names) == 0:
             print('no documents found')
-        elif len(answer_names) > 0 and len(answer_names) < 2:
+        elif 0 < len(answer_names) <= 2:
             ans = 'found '
             for file_name in answer_names:
                 ans += file_name
@@ -62,7 +63,7 @@ class Searcher:
             ans = 'found '
             ans = ans + answer_names[0] + ' '
             ans = ans + answer_names[1] + ' '
-            ans = ans + 'and %d more' % (len(answer_names) - 2)
+            ans += 'and %d more' % (len(answer_names) - 2)
             print(ans)
 
 
@@ -96,12 +97,10 @@ class Searcher:
             self.show_answer(answer)
 
 
-
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: path with indexes")
     else:
         searcher = Searcher(sys.argv[1])
         searcher.read_indexes()
-        #print(searcher.indexes)
         searcher.process_queries()
