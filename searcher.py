@@ -9,6 +9,7 @@
 
     :copyright: (c) 2014 by Elizaveta Shashkova.
 """
+import re
 import sys
 
 
@@ -37,7 +38,7 @@ class Searcher:
                 answer_files = {}
                 break
             answer_files = set(self.indexes[word]).intersection(answer_files)
-        print(answer_files)
+        return answer_files
 
 
     def query_or(self, words):
@@ -45,21 +46,55 @@ class Searcher:
         for word in words:
             if word in self.indexes:
                 set(self.indexes[word]).union(answer_files)
-        print(answer_files)
+        return answer_files
+
+
+    def show_answer(self, answer):
+        answer_names = [self.files[file_id] for file_id in answer]
+        if len(answer_names) == 0:
+            print('no documents found')
+        elif len(answer_names) > 0 and len(answer_names) < 2:
+            ans = 'found '
+            for file_name in answer_names:
+                ans += file_name
+            print(ans)
+        elif len(answer_names) > 2:
+            ans = 'found '
+            ans = ans + answer_names[0] + ' '
+            ans = ans + answer_names[1] + ' '
+            ans = ans + 'and %d more' % (len(answer_names) - 2)
+            print(ans)
+
+
+    def is_correct_query(self, query):
+        p = re.compile("^[а-я]+( AND [а-я]+)*$")
+        if p.match(query):
+            return True
+        p = re.compile("^[а-я]+( OR [а-я]+)*$")
+        if p.match(query):
+            return True
+        return False
 
 
     def process_queries(self):
         for line in sys.stdin:
-            query = line.rstrip()
+            query = line.strip()
+            if not self.is_correct_query(query):
+                print('incorrect query')
+                continue
+
             if 'AND' in query:
                 words = [word.strip() for word in query.split('AND')]
-                self.query_and(words)
+                answer = self.query_and(words)
             elif 'OR' in query:
                 words = [word.strip() for word in query.split('OR')]
-                self.query_or(words)
+                answer = self.query_or(words)
             else:
                 words = [query.strip()]
-                self.query_and(words)
+                answer = self.query_and(words)
+
+            self.show_answer(answer)
+
 
 
 if __name__ == "__main__":
