@@ -57,7 +57,7 @@ class Searcher:
         elif 0 < len(answer_names) <= 2:
             ans = 'found '
             for file_name in answer_names:
-                ans += file_name
+                ans += ' ' + file_name
             print(ans)
         elif len(answer_names) > 2:
             ans = 'found '
