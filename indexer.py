@@ -28,13 +28,14 @@ class Indexer:
     def _process_line(self, line, file_num):
         p = re.compile("\{([а-я\|]+)\}")
         lex_in_file = p.findall(line)
+        place = 0
         for lex in lex_in_file:
             words = lex.split('|')
             for word in words:
                 if word not in self.indexes:
                     self.indexes[word] = []
-                if file_num not in self.indexes[word]:
-                    self.indexes[word].append(file_num)
+                self.indexes[word].append((file_num, place))
+            place += 1
 
     def _create_file_index(self, path, file_num):
         file = open(path)
