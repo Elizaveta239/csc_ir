@@ -15,6 +15,7 @@ import sys
 import re
 from os import listdir
 from os.path import isfile, join
+from pickle import Pickler
 
 
 class Indexer:
@@ -23,7 +24,6 @@ class Indexer:
         self.output = output
         self.indexes = {}
         self.files = []
-
 
     def _process_line(self, line, file_num):
         p = re.compile("\{([а-я\|]+)\}")
@@ -36,12 +36,10 @@ class Indexer:
                 if file_num not in self.indexes[word]:
                     self.indexes[word].append(file_num)
 
-
     def _create_file_index(self, path, file_num):
         file = open(path)
         for line in file:
             self._process_line(line.rstrip(), file_num)
-
 
     def create_index(self):
         files = [join(self.files_path, f) for f in listdir(self.files_path) if isfile(join(self.files_path, f))]
@@ -50,18 +48,10 @@ class Indexer:
             file_num = files.index(file)
             self._create_file_index(file, file_num)
 
-
     def write_index_to_file(self):
-        output_file = open(self.output, "w")
-        for file in self.files:
-            output_file.write(str(file) + '\t')
-        output_file.write('\n')
-        for k, v in self.indexes.items():
-            output_file.write(k + ':')
-            for word_files in v:
-                output_file.write(str(word_files) + '\t')
-            output_file.write('\n')
-        output_file.close()
+        pickler = Pickler(open(self.output, "wb"))
+        pickler.dump(self.files)
+        pickler.dump(self.indexes)
 
 
 if __name__ == "__main__":

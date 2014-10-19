@@ -12,6 +12,7 @@
 """
 import re
 import sys
+from pickle import Unpickler
 
 
 class Searcher:
@@ -20,17 +21,10 @@ class Searcher:
         self.files = []
         self.indexes = {}
 
-
     def read_indexes(self):
-        file = open(self.indexes_path)
-        line = file.readline().rstrip()
-        self.files = line.split('\t')
-        for line in file:
-            word_ind = line.rstrip().split(':')
-            word = word_ind[0]
-            files_num = [int(ind) for ind in word_ind[1].split('\t')]
-            self.indexes[word] = files_num
-
+        unpickler = Unpickler(open(self.indexes_path, "rb"))
+        self.files = unpickler.load()
+        self.indexes = unpickler.load()
 
     def query_and(self, words):
         answer_files = set(range(len(self.files)))
@@ -41,14 +35,12 @@ class Searcher:
             answer_files = set(self.indexes[word]).intersection(answer_files)
         return answer_files
 
-
     def query_or(self, words):
         answer_files = set()
         for word in words:
             if word in self.indexes:
                 answer_files = set(self.indexes[word]).union(answer_files)
         return answer_files
-
 
     def show_answer(self, answer):
         answer_names = [self.files[file_id] for file_id in answer]
@@ -66,7 +58,6 @@ class Searcher:
             ans += 'and %d more' % (len(answer_names) - 2)
             print(ans)
 
-
     def is_correct_query(self, query):
         p = re.compile("^[а-я]+( AND [а-я]+)*$")
         if p.match(query):
@@ -75,7 +66,6 @@ class Searcher:
         if p.match(query):
             return True
         return False
-
 
     def process_queries(self):
         for line in sys.stdin:
